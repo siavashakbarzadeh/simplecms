@@ -1,0 +1,26 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/icoa-gae', '.']
+
+  # Push the Docker image to Google Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/icoa-gae']
+
+  # Deploy to Google App Engine
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['app', 'deploy', 'app.yaml', '--image-url=gcr.io/$PROJECT_ID/Qicoa-gae', '--quiet']
+
+timeout: '1600s'  # Adjust the timeout to your needs
+
+# Optional: set a specific service account to use for the build
+# options:
+#   logging: CLOUD_LOGGING_ONLY
+#   logStreamingOption: STREAM_ON
+# serviceAccount: projects/$PROJECT_ID/serviceAccounts/your-service-account-email
+
+images:
+  - 'gcr.io/$PROJECT_ID/icoa-gae'
+
+options:
+  logging: NONE

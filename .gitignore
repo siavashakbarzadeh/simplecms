@@ -1,12 +1,11 @@
 /node_modules
-/public/hot
-/public/storage
+
 /storage/*.key
 /vendor
 .DS_Store
 Thumbs.db
 /bower_components
-.env
+
 .env.backup
 /.idea
 /.vscode
@@ -33,15 +32,10 @@ yarn.lock
 
 public/mix-manifest.json
 
-public/themes
-public/docs
 resources/docs
 
 .phpunit.result.cache
-/storage/.license
-/storage/fonts
-/storage/installing
-/storage/installed
+
 
 /lang/*
 !/lang/en
