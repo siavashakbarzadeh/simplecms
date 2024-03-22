@@ -10,7 +10,10 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
+    libzip-dev \ 
+    && docker-php-ext-install zip \ 
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
@@ -32,7 +35,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
 
 # Install Composer dependencies
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+RUN composer update --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
 # Change ownership of our applications
 RUN chown -R www-data:www-data /var/www/html
