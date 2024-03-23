@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DISK', 'local'),
+    'default' => env('FILESYSTEM_DISK', 'gcs'),
 
     /*
     |--------------------------------------------------------------------------
@@ -29,6 +29,13 @@ return [
     */
 
     'disks' => [
+
+        'gcs' => [
+            'driver' => 'gcs',
+            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', 'icoa-gae'),
+            'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET', 'devgochange'),
+
+        ],
 
         'local' => [
             'driver' => 'local',
