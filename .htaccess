@@ -1,10 +1,25 @@
-RewriteEngine on
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-# Redirect Trailing Slashes If Not A Folder...
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} (.+)/$
-RewriteRule ^ %1 [L,R=301]
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+    
+    # Ensure that Apache serves the public/ directory contents
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ /public/$1 [L,NC]
 
-RewriteCond %{REQUEST_URI} !^public
+    # Handle Front Controller for public directory
+    RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_FILENAME} !-d
+    RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ /public/index.php [L]
+</IfModule>
 
-RewriteRule ^(.*)$ public/$1 [L]
+<IfModule mod_negotiation.c>
+    Options -MultiViews -Indexes
+</IfModule>
