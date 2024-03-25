@@ -157,7 +157,7 @@ Route::get('/emailpendings',[\App\Http\Controllers\PecController::class,'pending
 
 
 Route::get('/send-sample-email', function () {
-    $recipients = ['a.allahverdi@icoa.it', 's.akbarzadeh@icoa.it','allahverdiamirreza@gmail.com'];
+    $recipients = ['a.allahverdi@icoa.it', 's.akbarzadeh@icoa.it','allahverdiamirreza@gmail.com'];  
 
     foreach ($recipients as $recipient) {
         Mail::to($recipient)->send(new SampleEmail());
