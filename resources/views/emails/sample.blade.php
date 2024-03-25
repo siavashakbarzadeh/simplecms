@@ -1,5 +1,17 @@
-This is a sample email sent from Laravel.
+<!DOCTYPE html>
+<html lang="en">
 
-Thanks,<br>
-{{ config('app.name') }}
-@endcomponent
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    This is a sample email sent from Laravel.
+    <br>
+    Thanks
+</body>
+
+</html>
