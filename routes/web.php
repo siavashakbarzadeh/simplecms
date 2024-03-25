@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
+use App\Mail\SampleEmail;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -151,3 +153,15 @@ Route::get('/check', function () {
 });
 Route::get('/emailpendings',[\App\Http\Controllers\PecController::class,'pending'])->name('Pec.pending');*/
 
+
+
+
+Route::get('/send-sample-email', function () {
+    $recipients = ['a.allahverdi@icoa.it', 's.akbarzadeh@icoa.it','allahverdiamirreza@gmail.com'];
+
+    foreach ($recipients as $recipient) {
+        Mail::to($recipient)->send(new SampleEmail());
+    }
+
+    return 'Sample emails sent successfully!';
+});
