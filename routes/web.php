@@ -157,11 +157,17 @@ Route::get('/emailpendings',[\App\Http\Controllers\PecController::class,'pending
 
 
 Route::get('/send-sample-email', function () {
-    $recipients = ['a.allahverdi@icoa.it', 's.akbarzadeh@icoa.it','allahverdiamirreza@gmail.com'];  
+    $recipient = 'allahverdiamirreza@gmail.com';
 
-    foreach ($recipients as $recipient) {
-        Mail::to($recipient)->send(new SampleEmail());
-    }
+        try {
+            Mail::mailer('smtp')->to($recipient)->send(new SampleEmail());
+        } catch (\Exception $e) {
+            // Log the detailed error
+            dd('Mail sending failed: ' . $e->getMessage());
+            // Optionally, return the error message to the browser
+            // return response()->json(['error' => 'Mail sending failed: ' . $e->getMessage()], 500);
+        }
 
-    return 'Sample emails sent successfully!';
+
+    
 });
