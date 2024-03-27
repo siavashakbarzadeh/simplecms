@@ -158,9 +158,9 @@ Route::get('/emailpendings',[\App\Http\Controllers\PecController::class,'pending
 
 Route::get('/send-sample-email', function () {
     $recipient = 'allahverdiamirreza@gmail.com';
-
+    $content='this is my content';
         try {
-            Mail::mailer('smtp')->to($recipient)->send(new SampleEmail());
+            Mail::mailer('smtp')->to($recipient)->send(new SampleEmail($content));
         } catch (\Exception $e) {
             // Log the detailed error
             dd('Mail sending failed: ' . $e->getMessage());

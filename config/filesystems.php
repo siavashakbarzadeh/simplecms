@@ -34,6 +34,8 @@ return [
             'driver' => 'gcs',
             'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', 'icoa-gae'),
             'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET', 'devgochange'),
+            'key_file' => env('GOOGLE_CLOUD_KEY_FILE', 'icoa-gae-key.json')
+
 
         ],
 

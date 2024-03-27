@@ -9,9 +9,8 @@
 </head>
 
 <body>
-    This is a sample email sent from Laravel.
-    <br>
-    Thanks
+    <p>{!! $content !!}</p>
+
 </body>
 
 </html>

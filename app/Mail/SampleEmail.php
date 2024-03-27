@@ -11,14 +11,17 @@ class SampleEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct()
+    public function __construct($content)
     {
-        // You can pass data to the view if needed
+        $this->content = $content;
     }
 
     public function build()
     {
-        return $this->subject('Sample Email Subject')
-                    ->markdown('emails.sample');
+        return $this->view('emails.sample')
+                    ->with(['content' => $this->content])
+                    ->subject('Sample Email Subject')
+                    ->from('a.allahverdi@icoa.it','Icoa');
+                    
     }
 }
