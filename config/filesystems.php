@@ -32,7 +32,6 @@ return [
 
         'gcs' => [
             'driver' => 'gcs',
-            // 'key_file_path' => env('GOOGLE_CLOUD_KEY_FILE', base_path('bucket-manager.json')), // optional: /path/to/service-account.json
             'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', 'icoa-gae'), // optional: is included in key file
             'bucket' => 'devgochange',
             'path_prefix' => env('GOOGLE_CLOUD_STORAGE_PATH_PREFIX', null), // optional: /default/path/to/apply/in/bucket
