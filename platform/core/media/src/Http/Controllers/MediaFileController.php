@@ -26,13 +26,40 @@ class MediaFileController extends Controller
 
     public function postUpload(Request $request)
     {
-        if (! RvMedia::isChunkUploadEnabled()) {
-            
-            $result = RvMedia::handleUpload(Arr::first($request->file('file')), $request->input('folder_id', 0));
+        // if (! RvMedia::isChunkUploadEnabled()) {
+            try{
+                $file=$request->file('file');
+                $file=$file[0];
+                $disk = Storage::disk('gcs');
+
+                // Upload the file contents to the specified location in the GCS bucket
+                $disk->put('/' . $file->getClientOriginalName(), file_get_contents($file));
+        
+                // Check if the file exists in the GCS bucket
+                $exists = $disk->exists('/' . $file->getClientOriginalName());
+        
+                // Get the last modified time of the file in the GCS bucket
+                $time = $disk->lastModified('/' . $file->getClientOriginalName());
+        
+                // Get the URL of the file in the GCS bucket
+                $url = $disk->url('/' . $file->getClientOriginalName());
+        
+                // Set the visibility of the file in the GCS bucket to public
+                $disk->setVisibility('/' . $file->getClientOriginalName(), 'public');
+        
+                // Generate a temporary URL for the file in the GCS bucket (valid for 30 minutes)
+                $temporaryUrl = $disk->temporaryUrl('/' . $file->getClientOriginalName(), now()->addMinutes(60));
+                dd($temporaryUrl);
+
+            }catch(Exception $e){
+                dd($e);
+            }
+        
+            // $result = RvMedia::handleUpload(Arr::first($request->file('file')), $request->input('folder_id', 0));
 
 
-            return $this->handleUploadResponse($result);
-        }
+            // return $this->handleUploadResponse($result);
+        // }
 
         try {
             // Create the file receiver
