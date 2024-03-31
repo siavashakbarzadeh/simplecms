@@ -30,14 +30,14 @@ WORKDIR /var/www/html
 COPY . /var/www/html
 
 # Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
 COPY ./public/.well-known/certificate.crt /etc/ssl/certs/certificate.crt
 COPY ./public/.well-known/private.key /etc/ssl/private/private.key
 
 # Install Composer dependencies
-RUN composer update --no-interaction --prefer-dist --optimize-autoloader --no-dev
+# RUN composer update --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
 # Change ownership of our applications
 RUN chown -R www-data:www-data /var/www/html
