@@ -1,4 +1,3 @@
-# Use the official PHP image with Apache
 FROM php:8.2-apache
 
 # Install system dependencies
@@ -21,7 +20,7 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Enable Apache mod_rewrite and SSL module
+# Enable Apache mod_rewrite
 RUN a2enmod rewrite ssl
 
 # Set working directory
@@ -30,18 +29,26 @@ WORKDIR /var/www/html
 # Copy the application files to the container
 COPY . /var/www/html
 
-# Adjust Apache configuration to listen on a custom port if necessary
-ARG PORT=80
-RUN if [ "$PORT" != "80" ]; then \
-    sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf && \
-    sed -i 's/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/g' /etc/apache2/sites-available/000-default.conf; \
-    fi
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Expose the custom port
-EXPOSE ${PORT}
+COPY apache.conf /etc/apache2/sites-available/000-default.conf
+COPY ./public/.well-known/certificate.crt /etc/ssl/certs/certificate.crt
+COPY ./public/.well-known/private.key /etc/ssl/private/private.key
 
-# Custom entrypoint script
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+# Install Composer dependencies
+RUN composer update --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# Change ownership of our applications
+RUN chown -R www-data:www-data /var/www/html
+
+# Expose port (documentation purpose, as mentioned)
+EXPOSE 8080
+
+# Adjust Apache to listen on the provided PORT environment variable
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+RUN sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf
+RUN sed -i 's/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/g' /etc/apache2/sites-available/000-default.conf
+
+# Start Apache in the foreground
+CMD ["apache2-foreground"]
