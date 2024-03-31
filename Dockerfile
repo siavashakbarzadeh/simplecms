@@ -29,28 +29,29 @@ WORKDIR /var/www/html
 # Copy the application files to the container
 COPY . /var/www/html
 
-# Install Composer
-# COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
+# Copy Apache configuration file
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
+
+# Copy SSL certificate and key
 COPY ./public/.well-known/certificate.crt /etc/ssl/certs/certificate.crt
 COPY ./public/.well-known/private.key /etc/ssl/private/private.key
 
 # Install Composer dependencies
 COPY vendor /var/www/html/vendor
 
-# RUN composer update --no-interaction --prefer-dist --optimize-autoloader --no-dev
+# Copy the entrypoint script
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Change ownership of our applications
-RUN chown -R www-data:www-data /var/www/html
-
-# Expose port (documentation purpose, as mentioned)
-EXPOSE 8080
+# Set execute permissions for the entrypoint script
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Adjust Apache to listen on the provided PORT environment variable
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf
 RUN sed -i 's/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/g' /etc/apache2/sites-available/000-default.conf
 
-# Start Apache in the foreground
-CMD ["apache2-foreground"]
+# Expose port (documentation purpose, as mentioned)
+EXPOSE 8080
+
+# Set the entrypoint script as the container's entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
