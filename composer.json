@@ -29,7 +29,6 @@
         "botble/theme": "*@dev",
         "botble/widget": "*@dev",
         "doctrine/dbal": "^3.2",
-        "google/cloud-secret-manager": "^1.14",
         "google/cloud-storage": "^1.41",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^9.21",
