@@ -11,6 +11,7 @@ Thumbs.db
 /.vagrant
 Homestead.json
 Homestead.yaml
+/vendor
 npm-debug.log
 sftp-config.json
 .phpstorm.meta.php
