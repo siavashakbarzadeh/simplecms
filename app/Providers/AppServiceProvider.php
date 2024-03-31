@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
-use Google\Cloud\SecretManager\V1\SecretManagerServiceClient;
+// use Google\Cloud\SecretManager\V1\SecretManagerServiceClient;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -26,23 +26,25 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        $secretManager = new SecretManagerServiceClient();
+        $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
 
-        $secretName = "projects/341264949013/secrets/bucket-manager/versions/latest";
-        $response = $secretManager->accessSecretVersion($secretName);
-        
-        $payload = $response->getPayload()->getData();
-        
-        $keyfileData = json_decode($payload, true);
+        $encryptedWithIv = getenv("KEY_FILE");
+        // Decrypt
+        list($encryptedData, $iv) = explode('::', base64_decode($encryptedWithIv), 2);
+        $iv = base64_decode($iv); // Decode the IV back
+        $decryptedString = openssl_decrypt($encryptedData, 'aes-256-cbc', "Amir208079@", 0, $iv);
 
-        putenv("GOOGLE_APPLICATION_CREDENTIALS=".json_encode($keyfileData));
-        // Update the filesystem configuration directly
+        // Convert back to object
+        $decrypted = json_decode($decryptedString, true); // Use true to get it as an associative array
+
+        // Debug
+        putenv("GOOGLE_APPLICATION_CREDENTIALS=".json_encode($decrypted));
+
         $config = config('filesystems.disks.gcs');
-        $config['key_file'] = $keyfileData;
-
-        // Replace the original configuration with the updated one
+        $config['key_file'] = $decrypted;
         config(['filesystems.disks.gcs' => $config]);
 
-        // //
+
+    
     }
 }
