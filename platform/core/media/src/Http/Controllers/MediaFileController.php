@@ -14,6 +14,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Botble\Media\Models\MediaFile;
 
 /**
  * @since 19/08/2015 07:50 AM
@@ -27,32 +28,43 @@ class MediaFileController extends Controller
     public function postUpload(Request $request)
     {
         // if (! RvMedia::isChunkUploadEnabled()) {
-            try{
-                $file=$request->file('file');
-                $file=$file[0];
+            try {
+                $file = $request->file('file')[0]; // Assuming you're sure about this structure.
                 $disk = Storage::disk('gcs');
-
-                // Upload the file contents to the specified location in the GCS bucket
-                $disk->put('/' . $file->getClientOriginalName(), file_get_contents($file));
-        
-                // Check if the file exists in the GCS bucket
-                $exists = $disk->exists('/' . $file->getClientOriginalName());
-        
-                // Get the last modified time of the file in the GCS bucket
-                $time = $disk->lastModified('/' . $file->getClientOriginalName());
-        
-                // Get the URL of the file in the GCS bucket
-                $url = $disk->url('/' . $file->getClientOriginalName());
-        
-                // Set the visibility of the file in the GCS bucket to public
-                $disk->setVisibility('/' . $file->getClientOriginalName(), 'public');
-        
-                // Generate a temporary URL for the file in the GCS bucket (valid for 30 minutes)
-                $temporaryUrl = $disk->temporaryUrl('/' . $file->getClientOriginalName(), now()->addMinutes(60));
-                dd($temporaryUrl);
-
-            }catch(Exception $e){
-                dd($e);
+                $originalName = $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $uniqueNameWoExtension=uniqid() . '_' . time();
+                $uniqueName = $uniqueNameWoExtension . '.' . $extension; // Example: 5f586bf65e5bb_1601374123.jpg
+            
+                // Upload the file to the GCS bucket with the new unique name
+                $filePath = $uniqueName;            
+                // Upload the file to the GCS bucket
+                $disk->put($filePath, file_get_contents($file));
+            
+                // Immediately check if the file exists to confirm upload success
+                if (!$disk->exists($filePath)) {
+                    return response()->json(['error' => 'File upload failed or file does not exist in GCS.'], 500);
+                }
+            
+                // If the file exists, proceed with the rest of the operations
+                $time = $disk->lastModified($filePath);
+                $url = $disk->url($filePath);
+                $disk->setVisibility($filePath, 'public');
+                if($url){
+                    $this->saveFileMetadata($file,$filePath,$url);
+                    $croppedUrl = $this->cropUploadAndSave($file,$uniqueNameWoExtension,$extension,150, 150);
+                    $croppedUrl2 = $this->cropUploadAndSave($file,$uniqueNameWoExtension,$extension,540, 360);
+                }
+                // Success response
+                return response()->json([
+                    'message' => 'File uploaded and processed successfully.',
+                    'url' => $url,
+                    'lastModified' => $time
+                ]);
+            
+            } catch (\Exception $e) {
+                // Return a JSON response with the error
+                return response()->json(['error' => 'An error occurred: ' . $e->getMessage()], 500);
             }
         
             // $result = RvMedia::handleUpload(Arr::first($request->file('file')), $request->input('folder_id', 0));
@@ -87,6 +99,60 @@ class MediaFileController extends Controller
             return RvMedia::responseError($exception->getMessage());
         }
     }
+
+
+    protected function saveFileMetadata($file, $uniqueName, $url)
+    {
+        $mimeType = $file->getClientMimeType();
+        $fileSize = $file->getSize();
+        // You might get $folderId and $userId from the request, session, or another part of your application
+        $altText = ''; // Set this based on your application's logic or user input
+
+        $mediaFile = new MediaFile([
+            'name' => $uniqueName,
+            'alt' => $uniqueName,
+            'mime_type' => $mimeType,
+            'size' => $fileSize,
+            'url' => $url,
+            'options' => json_encode([]), // Assuming you're using this field for additional metadata
+            'folder_id' => 0,
+            'user_id' => 2,
+        ]);
+
+        $mediaFile->save();
+    }
+
+    protected function cropUploadAndSave($file,$fileName,$extension, $width, $height, $folderId = 0, $userId = 2)
+{
+    $disk = Storage::disk('gcs');
+    $extension = $file->getClientOriginalExtension();
+    $croppedName = $fileName.'-'.$width.'x'.$height. '.' . $extension;
+
+    // Crop the image
+    $croppedImage = \Image::make($file)->resize($width, $height, function ($constraint) {
+        $constraint->aspectRatio();
+        $constraint->upsize();
+    });
+
+    // Prepare the cropped image for uploading
+    $tempPath = sys_get_temp_dir() . '/' . $croppedName;
+    $croppedImage->save($tempPath);
+
+    // Upload the cropped image
+    $disk->put($croppedName, fopen($tempPath, 'r+'));
+
+    // After uploading, get the URL of the cropped image
+    $url = $disk->url($croppedName);
+
+    // Clean up the local temporary file
+    @unlink($tempPath);
+
+
+    // Return the URL or any other relevant information
+    return $url;
+}
+
+
 
     protected function handleUploadResponse(array $result): JsonResponse
     {
