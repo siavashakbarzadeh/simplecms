@@ -53,7 +53,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $mails = collect(json_decode(Setting::get("mails"), true));
         if ($mails->count()) {
-            if ($mails->has('smtp')) config(['mail.mailers.smtp' => collect(config('mail.mailers.smtp'))->merge($mails->get('smtp'))->toArray()]);
+            // if ($mails->has('smtp')) config(['mail.mailers.smtp' => collect(config('mail.mailers.smtp'))->merge($mails->get('smtp'))->toArray()]);
             if ($mails->has('smtp_pec')) config(['mail.mailers.smtp_pec' => collect(config('mail.mailers.smtp_pec'))->merge($mails->get('smtp_pec'))->toArray()]);
         }
     }
