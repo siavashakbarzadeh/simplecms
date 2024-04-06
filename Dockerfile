@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libwebp-dev \
     libxpm-dev \
-    cron \ # Add cron here
-&& apt-get clean && rm -rf /var/lib/apt/lists/*
+    cron \ 
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
