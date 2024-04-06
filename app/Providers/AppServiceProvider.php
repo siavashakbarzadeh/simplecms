@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Botble\Setting\Facades\Setting;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 // use Google\Cloud\SecretManager\V1\SecretManagerServiceClient;
@@ -43,8 +44,17 @@ class AppServiceProvider extends ServiceProvider
         $config = config('filesystems.disks.gcs');
         $config['key_file'] = $decrypted;
         config(['filesystems.disks.gcs' => $config]);
+        $this->app->booted(function () {
+            $this->_registerMailConfig();
+        });
+    }
 
-
-    
+    private function _registerMailConfig()
+    {
+        $mails = collect(json_decode(Setting::get("mails"), true));
+        if ($mails->count()) {
+            if ($mails->has('smtp')) config(['mail.mailers.smtp' => collect(config('mail.mailers.smtp'))->merge($mails->get('smtp'))->toArray()]);
+            if ($mails->has('smtp_pec')) config(['mail.mailers.smtp_pec' => collect(config('mail.mailers.smtp_pec'))->merge($mails->get('smtp_pec'))->toArray()]);
+        }
     }
 }

@@ -12,7 +12,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('queue:work --timeout=60 --tries=2 --once')
+            ->everyMinute()
+            ->withoutOverlapping();
     }
 
     /**
