@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
 
 
 class SchedulerController extends BaseController
@@ -9,6 +11,6 @@ class SchedulerController extends BaseController
     public function run()
     {
         \Artisan::call('schedule:run');
-        return response('Scheduler run successfully', 200);
+        return "ok";
     }
 }
