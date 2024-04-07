@@ -18,6 +18,7 @@ use App\Http\Controllers\CreaSconto;
 use App\Http\Controllers\FuckingRelatedBlog;
 use App\Http\Controllers\SPCController;
 use App\Http\Controllers\strumentazioniFilterController;
+use App\Http\Controllers\SchedulerController;
 use Botble\Ecommerce\Http\Controllers\OfferTypeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
