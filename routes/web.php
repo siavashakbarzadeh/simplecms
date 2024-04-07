@@ -153,6 +153,7 @@ Route::get('/check', function () {
 });
 Route::get('/emailpendings',[\App\Http\Controllers\PecController::class,'pending'])->name('Pec.pending');*/
 
+Route::get('/run-scheduler', [SchedulerController::class, 'run']);
 
 
 
