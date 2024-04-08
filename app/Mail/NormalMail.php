@@ -36,16 +36,9 @@ class NormalMail extends Mailable
     public function envelope()
     {
         $envelope = new Envelope(
-            subject: array_key_exists('subject', $this->request) && $this->request['subject'] ? $this->request['subject'] : config('app.name'),
+            subject: array_key_exists('subject',$this->request) && $this->request['subject'] ? $this->request['subject'] : config('app.name'),
         );
-    
-        // Set "from" address and name from .env or pass them dynamically
-        $envelope->from(env('MAIL_FROM_ADDRESS', 'a.allahverdi@icoa.it'), env('MAIL_FROM_NAME', 'GOCHANGE'));
-    
-        if (array_key_exists('reply_to', $this->request) && $this->request['reply_to']) {
-            $envelope->replyTo($this->request['reply_to']);
-        }
-    
+        if (array_key_exists('reply_to',$this->request) && $this->request['reply_to']) $envelope->replyTo($this->request['reply_to']);
         return $envelope;
     }
 

@@ -38,6 +38,6 @@ class NormalEmailJob implements ShouldQueue
      */
     public function handle()
     {
-        Mail::mailer('smtp')->to($this->email)->send(new NormalMail($this->email, $this->request, 'smtp'));
+        Mail::mailer('smtp')->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))->to($this->email)->send(new NormalMail($this->email, $this->request, 'smtp'));
     }
 }
