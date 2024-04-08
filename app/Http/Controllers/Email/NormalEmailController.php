@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Email;
 use App\Http\Controllers\Controller;
 use App\Jobs\NormalEmailJob;
 use App\Models\Email;
+use App\Models\Group;
 use Botble\ACL\Models\User;
 use Botble\Member\Models\Member;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,7 +37,12 @@ class NormalEmailController extends Controller
         $members = Member::query()
             ->select(['id', 'first_name', 'last_name', 'email'])
             ->get();
-        return view('emails.normal.create', compact('emails','members'));
+
+        $groups = Group::query()
+            ->select(['id', 'name',])
+            ->get();
+//        dd($groups);
+        return view('emails.normal.create', compact('emails','members','groups'));
     }
 
     public function store(Request $request)
@@ -98,4 +104,19 @@ class NormalEmailController extends Controller
             return redirect()->back();
         }
     }
+    public function addUsersToGroup(Request $request)
+    {
+        $groupId = $request->input('groupName');
+        $userIds = $request->input('userEmails'); // Assuming userEmails is an array of user IDs
+
+        $group = Group::find($groupId);
+        if ($group) {
+            $group->members()->syncWithoutDetaching($userIds);
+        }else{
+            var_dump('ok');
+        }
+        var_dump($group);
+
+    }
+
 }

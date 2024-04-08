@@ -2,8 +2,11 @@
 
 @push('header')
     <link href="{{ asset('filter-multi-select-main/filter_multi_select.css') }}" rel="stylesheet"/>
+
 @endpush
 @push('footer')
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
     @php
         Assets::addScriptsDirectly(config('core.base.general.editor.ckeditor.js'))
             ->addScriptsDirectly('vendor/core/core/base/js/editor.js');
@@ -51,7 +54,21 @@
                                         @if(old('member_emails') && in_array($item['email'],old('member_emails'))) selected @endif>{{ $item['email'] }}</option>
                             @endforeach
                         </select>
-                        <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#addUserGroupModal">Add to User Group</button>
+                        <button type="button" class="btn btn-primary ml-2" data-bs-toggle="modal" data-bs-target="#addUserGroupModal">Add to User Group</button>
+                        @error('member_emails')
+                        <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="mb-3">
+                        <label for="select_members" class="text-title-field">group</label>
+                        <select name="member_emails[]" id="select_members" multiple>
+                            @foreach($groups as $group)
+                                <option value="{{ $group->id }}">{{ $group->name }}</option>
+                            @endforeach
+                        </select>
+
                         @error('member_emails')
                         <span class="text-danger">{{ $message }}</span>
                         @enderror
@@ -101,18 +118,18 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <!-- Form or input fields for adding user to a group -->
                         <form id="addUserGroupForm">
                             <div class="form-group">
-                                <label for="userEmail">User Email</label>
-                                <input type="email" class="form-control" id="userEmail" placeholder="Enter user's email">
-                            </div>
-                            <div class="form-group">
                                 <label for="groupName">Group Name</label>
-                                <input type="text" class="form-control" id="groupName" placeholder="Enter group name">
+                                <select id="groupName" class="form-control" name="groupName">
+
+                                    @foreach($groups as $group)
+                                        <option value="{{ $group->id }}">{{ $group->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
-                            <!-- Add more fields as necessary -->
                         </form>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -125,29 +142,37 @@
     </div>
     <script>
         function submitAddUserGroupForm() {
-            var userEmail = document.getElementById('userEmail').value;
-            var groupName = document.getElementById('groupName').value;
+            var userEmails = $('#select_members').val();
+            var groupId = $('#groupName').val();
 
-            // Example AJAX request (You'll need to adjust according to your setup)
+            console.log("Emails: ", userEmails, "Group ID: ", groupId);
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
             $.ajax({
-                url: '/path-to-your-route', // Update this to your server endpoint
+                url: '{{ route("add-users-to-group") }}', // Ensure Blade template syntax is processed correctly
                 type: 'POST',
                 data: {
-                    email: userEmail,
-                    group: groupName,
-                    _token: '{{ csrf_token() }}' // CSRF token for Laravel
+                    userEmails: userEmails, // Ensure this matches the expected format on the server
+                    groupName: groupId,
+                    _token: '{{ csrf_token() }}' // CSRF token
                 },
                 success: function(response) {
-                    // Handle success (e.g., close modal, show message)
                     $('#addUserGroupModal').modal('hide');
-                    // Optionally refresh parts of your page or notify the user
+                    // Handle additional success scenarios
                 },
-                error: function(error) {
-                    // Handle error
-                    console.error("There was an error:", error);
+                error: function(xhr, status, error) {
+                    console.error("Error: ", xhr.responseText);
+                    // Handle error scenarios
                 }
             });
         }
+
+
+
     </script>
 
 @endsection

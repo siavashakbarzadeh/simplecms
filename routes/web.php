@@ -171,5 +171,7 @@ Route::get('/send-sample-email', function () {
         }
 
 
-    
+
 });
+// Add this inside routes/web.php
+Route::post('/add-users-to-group', [NormalEmailController::class, 'addUsersToGroup'])->name('add-users-to-group');

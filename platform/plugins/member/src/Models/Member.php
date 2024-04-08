@@ -2,6 +2,7 @@
 
 namespace Botble\Member\Models;
 
+use App\Models\Group;
 use Botble\Base\Casts\SafeContent;
 use Botble\Base\Models\BaseModel;
 use Botble\Base\Supports\Avatar;
@@ -160,4 +161,9 @@ class Member extends BaseModel implements
             }
         });
     }
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class);
+    }
+
 }
