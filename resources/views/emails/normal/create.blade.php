@@ -90,5 +90,64 @@
             </div>
             <button class="btn btn-success">Send</button>
         </form>
+        <!-- Modal -->
+        <div class="modal fade" id="addUserGroupModal" tabindex="-1" role="dialog" aria-labelledby="addUserGroupModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addUserGroupModalLabel">Add User to Group</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Form or input fields for adding user to a group -->
+                        <form id="addUserGroupForm">
+                            <div class="form-group">
+                                <label for="userEmail">User Email</label>
+                                <input type="email" class="form-control" id="userEmail" placeholder="Enter user's email">
+                            </div>
+                            <div class="form-group">
+                                <label for="groupName">Group Name</label>
+                                <input type="text" class="form-control" id="groupName" placeholder="Enter group name">
+                            </div>
+                            <!-- Add more fields as necessary -->
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="submitAddUserGroupForm()">Add User</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
+    <script>
+        function submitAddUserGroupForm() {
+            var userEmail = document.getElementById('userEmail').value;
+            var groupName = document.getElementById('groupName').value;
+
+            // Example AJAX request (You'll need to adjust according to your setup)
+            $.ajax({
+                url: '/path-to-your-route', // Update this to your server endpoint
+                type: 'POST',
+                data: {
+                    email: userEmail,
+                    group: groupName,
+                    _token: '{{ csrf_token() }}' // CSRF token for Laravel
+                },
+                success: function(response) {
+                    // Handle success (e.g., close modal, show message)
+                    $('#addUserGroupModal').modal('hide');
+                    // Optionally refresh parts of your page or notify the user
+                },
+                error: function(error) {
+                    // Handle error
+                    console.error("There was an error:", error);
+                }
+            });
+        }
+    </script>
+
 @endsection
