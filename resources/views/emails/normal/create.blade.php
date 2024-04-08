@@ -51,6 +51,7 @@
                                         @if(old('member_emails') && in_array($item['email'],old('member_emails'))) selected @endif>{{ $item['email'] }}</option>
                             @endforeach
                         </select>
+                        <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#addUserGroupModal">Add to User Group</button>
                         @error('member_emails')
                         <span class="text-danger">{{ $message }}</span>
                         @enderror
