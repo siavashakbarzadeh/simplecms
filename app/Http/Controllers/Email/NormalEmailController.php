@@ -104,19 +104,6 @@ class NormalEmailController extends Controller
             return redirect()->back();
         }
     }
-    public function addUsersToGroup(Request $request)
-    {
-        $groupId = $request->input('groupName');
-        $userIds = $request->input('userEmails'); // Assuming userEmails is an array of user IDs
 
-        $group = Group::find($groupId);
-        if ($group) {
-            $group->members()->syncWithoutDetaching($userIds);
-        }else{
-            var_dump('ok');
-        }
-        var_dump($group);
-
-    }
 
 }

@@ -2,17 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Model; // Ensure this is included for the base Model
 use Botble\Member\Models\Member;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
-class Group extends Authenticatable
+class Group extends Model // Ensure correct spelling and case for "extends"
 {
-    use HasApiTokens, HasFactory, Notifiable;
-    protected $table = 'groups';
+    protected $table = 'groups'; // This is optional if your table name follows Laravel's naming convention
+
     /**
      * The attributes that are mass assignable.
      *
@@ -20,29 +16,12 @@ class Group extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'email',
-        'password',
+        'description' // Added 'description' to the fillable attributes
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
+     * The members that belong to the group.
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
     public function members()
     {
         return $this->belongsToMany(Member::class);

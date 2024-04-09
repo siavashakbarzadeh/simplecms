@@ -23,6 +23,8 @@ use Botble\Ecommerce\Http\Controllers\OfferTypeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use App\Http\Controllers\GroupController;
+
 
 use App\Mail\SampleEmail;
 
@@ -174,4 +176,18 @@ Route::get('/send-sample-email', function () {
 
 });
 // Add this inside routes/web.php
-Route::post('/add-users-to-group', [NormalEmailController::class, 'addUsersToGroup'])->name('add-users-to-group');
+Route::prefix('admin')->group(function () {
+
+Route::prefix('groups')->group(function () {
+    Route::post('/store', [GroupController::class, 'store'])->name('groups.store');
+    Route::get('/', [GroupController::class, 'index'])->name('groups.index');
+    Route::get('/create', [GroupController::class, 'createView'])->name('groups.create');
+    Route::get('/edit/{id}', [GroupController::class, 'editView'])->name('groups.edit');
+    Route::get('/view/{id}', [GroupController::class, 'groupView'])->name('groups.view');
+    Route::post('/edit/{id}', [GroupController::class, 'edit'])->name('groups.update');
+    Route::get('/delete/{id}', [GroupController::class, 'delete'])->name('groups.delete');
+    Route::post('/update/{id}', [GroupController::class, 'update'])->name('groups.update');
+    Route::post('/{groupId}/remove-member/{memberId}', [GroupController::class, 'removeMember'])->name('groups.remove-member');
+});
+});
+
