@@ -34,7 +34,7 @@ class NormalEmailController extends Controller
             $item->role = $item->roles->pluck('name')->first() ?? "default";
             return $item;
         })->groupBy('role')->toArray();
-        $members = Member::query()
+        $members = Member::query()  
             ->select(['id', 'first_name', 'last_name', 'email'])
             ->get();
 
@@ -47,26 +47,48 @@ class NormalEmailController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->filled('emails')) {
-            $request->merge([
-                'emails' => collect($request->emails)->mapWithKeys(function ($item, $key) {
-                    return [$key => array_filter($item, 'strlen')];
-                })->toArray(),
-            ]);
-        }
-        $this->validate($request, [
-            'emails' => ['nullable', 'array'],
-            'emails.*' => ['nullable', 'array'],
-            'emails.*.*' => ['email', 'exists:' . User::class . ',email'],
-            'member_emails' => ['nullable', 'array'],
-            'member_emails.*' => ['email', 'exists:' . Member::class . ',email'],
-            'subject' => ['nullable', 'string'],
-            'reply_to' => ['nullable', 'string'],
-            'body' => ['required', 'string'],
-        ]);
+    // Merge members from selected groups into member_emails
+    if ($request->filled('groups')) {
+        $selectedGroupIds = $request->groups;
+
+        $groupMemberEmails = Group::whereIn('id', $selectedGroupIds)
+            ->with('members') // Ensure the 'members' relationship is loaded
+            ->get() // Retrieve the groups
+            ->pluck('members.*.email') // Extract member emails from each group
+            ->flatten() // Flatten the collection to a single level
+            ->unique() // Remove duplicate emails
+            ->toArray(); // Convert to array
+        
+        $mergedMemberEmails = array_unique(array_merge($groupMemberEmails, $request->input('member_emails', [])));
         $request->merge([
-            'emails' => collect($request->emails)->flatten()->toArray(),
+            'member_emails' => $mergedMemberEmails,
         ]);
+    }
+
+    // Filter out empty entries if any in 'emails'
+    if ($request->filled('emails')) {
+        $request->merge([
+            'emails' => collect($request->emails)->mapWithKeys(function ($item, $key) {
+                return [$key => array_filter($item, 'strlen')];
+            })->toArray(),
+        ]);
+    }
+
+    // Validation
+    $this->validate($request, [
+        'emails' => ['nullable', 'array'],
+        'emails.*' => ['nullable', 'array'],
+        'emails.*.*' => ['email', 'exists:' . User::class . ',email'],
+        'member_emails' => ['nullable', 'array'],
+        'member_emails.*' => ['email', 'exists:' . Member::class . ',email'],
+        'subject' => ['nullable', 'string'],
+        'reply_to' => ['nullable', 'string'],
+        'body' => ['required', 'string'],
+    ]);
+
+    $request->merge([
+        'emails' => collect($request->emails)->flatten()->toArray(),
+    ]);
         try {
             return DB::transaction(function () use ($request) {
                 /** @var Email $email_obj */

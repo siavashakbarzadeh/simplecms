@@ -111,4 +111,18 @@ class GroupController extends BaseController
         $group->delete();
         return redirect()->route('groups.index')->with('success', 'Group deleted successfully');
     }
+
+
+
+
+    public function getMembersOfGroups(Request $request)
+    {
+        $groupIds = $request->groups;
+        $membersToExclude = Member::whereIn('group_id', $groupIds)->pluck('email'); // Adjust according to your database structure
+    
+        return response()->json($membersToExclude);
+    }
+
+
+
 }

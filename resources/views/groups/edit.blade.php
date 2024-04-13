@@ -1,5 +1,17 @@
 @extends(BaseHelper::getAdminMasterLayoutTemplate())
-
+@push('header')
+    <link href="{{ asset('filter-multi-select-main/filter_multi_select.css') }}" rel="stylesheet" />
+@endpush
+@push('footer')
+    <script src="{{ asset('filter-multi-select-main/filter-multi-select-bundle.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            document.querySelectorAll('select').forEach((el) => {
+                $(el).filterMultiSelect();
+            })
+        });
+    </script>
+@endpush
 @section('content')
     <div class="container">
         <h1>Edit Group</h1>
@@ -19,19 +31,17 @@
 
             <!-- Member Selection for Adding via Checkboxes -->
             <div class="mb-3">
-                <label class="form-label">Add Members</label>
-                <div
-                    style="height: 150px; overflow-y: auto; border: 1px solid #ced4da; padding: 10px; border-radius: 0.25rem;">
+                <label for="select_members" class="text-title-field">Members</label>
+                <select name="membersToAdd[]" id="select_members" multiple>
                     @foreach ($allMembers as $member)
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{ $member->id }}"
-                                id="member{{ $member->id }}" name="membersToAdd[]">
-                            <label class="form-check-label" for="member{{ $member->id }}">
-                                {{ $member->email }}
-                            </label>
-                        </div>
+                        <option value="{{ $member['id'] }}" @if (old('member') && in_array($member['id'], old('member'))) selected @endif>
+                            {{ $member['email'] }}</option>
                     @endforeach
-                </div>
+                </select>
+
+                @error('member_emails')
+                    <span class="text-danger">{{ $message }}</span>
+                @enderror
             </div>
             <div class="mb-3">
                 <label class="form-label">Current Members</label>

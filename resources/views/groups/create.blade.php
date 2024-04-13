@@ -17,19 +17,17 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Select Members</label>
-                <div
-                    style="height: 150px; overflow-y: auto; border: 1px solid #ced4da; padding: 10px; border-radius: 0.25rem;">
+                <label for="select_members" class="text-title-field">Members</label>
+                <select name="membersToAdd[]" id="select_members" multiple>
                     @foreach ($allMembers as $member)
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{ $member->id }}"
-                                id="member{{ $member->id }}" name="membersToAdd[]">
-                            <label class="form-check-label" for="member{{ $member->id }}">
-                                {{ $member->email }}
-                            </label>
-                        </div>
+                        <option value="{{ $member['id'] }}" @if (old('member') && in_array($member['id'], old('member'))) selected @endif>
+                            {{ $member['email'] }}</option>
                     @endforeach
-                </div>
+                </select>
+
+                @error('member_emails')
+                    <span class="text-danger">{{ $message }}</span>
+                @enderror
             </div>
 
             <button type="submit" class="btn btn-primary">Create Group</button>

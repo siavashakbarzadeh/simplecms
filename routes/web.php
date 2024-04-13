@@ -188,6 +188,8 @@ Route::prefix('groups')->group(function () {
     Route::get('/delete/{id}', [GroupController::class, 'delete'])->name('groups.delete');
     Route::post('/update/{id}', [GroupController::class, 'update'])->name('groups.update');
     Route::post('/{groupId}/remove-member/{memberId}', [GroupController::class, 'removeMember'])->name('groups.remove-member');
+    Route::get('/getMembersOfGroups', [GroupController::class, 'getMembersOfGroups']);
+
 });
 });
 
